@@ -7,20 +7,33 @@ import java.util.List;
 
 @Service
 public class CredentialService {
+    private final CredentialMapper credentialMapper;
+    private final EncryptionService encryptionService;
 
-    public List<CredentialForm> getAllCredentials() {
-        return new ArrayList<>();
+    public CredentialService(CredentialMapper credentialMapper, EncryptionService encryptionService) {
+        this.credentialMapper = credentialMapper;
+        this.encryptionService = encryptionService;
     }
 
-    public void createCredential(CredentialForm credentialForm) {
-        System.out.println("Create credential: " + credentialForm.getUrl());
+    public void addCredential(Credential credential, Integer userId) {
+        String key = UUID.randomUUID().toString();
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), key);
+        credential.setUserId(userId);
+        credential.setKey(key);
+        credential.setPassword(encryptedPassword);
+        credentialMapper.insert(credential);
     }
 
-    public void updateCredential(CredentialForm credentialForm) {
-        System.out.println("Update credential: " + credentialForm.getCredentialId());
+    public void updateCredential(Credential credential, Integer userId) {
+        String key = UUID.randomUUID().toString();
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), key);
+        credential.setUserId(userId);
+        credential.setKey(key);
+        credential.setPassword(encryptedPassword);
+        credentialMapper.update(credential);
     }
 
-    public void deleteCredential(Integer credentialId) {
-        System.out.println("Delete credential: " + credentialId);
+    public String getDecryptedPassword(Credential credential) {
+        return encryptionService.decryptValue(credential.getPassword(), credential.getKey());
     }
 }
