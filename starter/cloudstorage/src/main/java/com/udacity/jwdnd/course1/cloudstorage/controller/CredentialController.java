@@ -11,25 +11,45 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CredentialController {
 
     private final CredentialService credentialService;
+    private final UserService userService;
 
-    public CredentialController(CredentialService credentialService) {
+    public CredentialController(CredentialService credentialService, UserService userService) {
         this.credentialService = credentialService;
+        this.userService = userService;
     }
 
-    @PostMapping("/credentials")
-    public String saveCredential(@ModelAttribute("credentialForm") CredentialForm credentialForm) {
-        if (credentialForm.getCredentialId() == null) {
-            credentialService.createCredential(credentialForm);
-        } else {
-            credentialService.updateCredential(credentialForm);
+    @PostMapping("/credential")
+    public String addOrUpdateCredential(Authentication authentication,
+                                        Credential credential,
+                                        RedirectAttributes redirectAttributes) {
+
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+
+        try {
+            if (credential.getCredentialId() == null) {
+                credentialService.addCredential(credential, user.getUserId());
+            } else {
+                credentialService.updateCredential(credential, user.getUserId());
+            }
+            redirectAttributes.addFlashAttribute("success", true);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", true);
         }
 
-        return "redirect:/home";
+        return "redirect:/result";
     }
 
-    @GetMapping("/credentials/delete")
-    public String deleteCredential(@RequestParam("credentialId") Integer credentialId) {
-        credentialService.deleteCredential(credentialId);
-        return "redirect:/home";
+    @GetMapping("/credential/delete/{credentialId}")
+    public String deleteCredential(@PathVariable Integer credentialId,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            credentialService.deleteCredential(credentialId);
+            redirectAttributes.addFlashAttribute("success", true);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", true);
+        }
+
+        return "redirect:/result";
     }
 }
