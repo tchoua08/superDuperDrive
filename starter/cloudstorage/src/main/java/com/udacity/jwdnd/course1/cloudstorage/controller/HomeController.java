@@ -33,7 +33,7 @@ public class HomeController {
 
         model.addAttribute("notes", noteService.getNotesByUserId(user.getUserId()));
         model.addAttribute("files", fileService.getFilesByUserId(user.getUserId()));
-        model.addAttribute("credentials", credentialService.getAllCredentials());
+        model.addAttribute("credentials", credentialService.getCredentialsByUserId(user.getUserId()));
         model.addAttribute("noteForm", new NoteForm());
         model.addAttribute("credentialForm", new CredentialForm());
 
