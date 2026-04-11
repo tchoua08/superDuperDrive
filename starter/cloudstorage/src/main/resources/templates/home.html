@@ -116,52 +116,46 @@
         </div>
 
         <!-- ================= CREDENTIALS ================= -->
-        <div class="tab-pane fade" id="credentials">
-
-            <button class="btn btn-info mb-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#credentialModal"
-                    onclick="openNewCredentialModal()">
-                + Add Credential
+        <div class="tab-pane fade" id="credentials" role="tabpanel">
+            <button type="button" class="btn btn-primary" onclick="showCredentialModal()">
+                Add a New Credential
             </button>
 
             <table class="table">
                 <thead>
                 <tr>
-                    <th>Actions</th>
                     <th>URL</th>
-                    <th>User Name</th>
+                    <th>Username</th>
                     <th>Password</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:if="${#lists.isEmpty(credentials)}">
-                    <td colspan="4">No credentials</td>
-                </tr>
-                <tr th:each="cred : ${credentials}">
+                <tr th:each="credential : ${credentials}">
+                    <td th:text="${credential.url}"></td>
+                    <td th:text="${credential.username}"></td>
+                    <td th:text="${credential.password}"></td>
                     <td>
-                        <button class="btn btn-success btn-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#credentialModal"
-                                th:attr="data-id=${cred.credentialId},
-                                         data-url=${cred.url},
-                                         data-userName=${cred.userName},
-                                         data-password=${cred.password}"
-                                onclick="openEditCredentialModal(this)">
+                        <button type="button"
+                                class="btn btn-success btn-sm"
+                                th:attr="data-id=${credential.credentialId},
+                                     data-url=${credential.url},
+                                     data-username=${credential.username},
+                                     data-password=${credential.decryptedPassword}"
+                                onclick="editCredential(this)">
                             Edit
                         </button>
 
-                        <a th:href="@{/credentials/delete(credentialId=${cred.credentialId})}"
-                           class="btn btn-danger btn-sm">Delete</a>
+                        <a th:href="@{/credential/delete/{id}(id=${credential.credentialId})}"
+                           class="btn btn-danger btn-sm">
+                            Delete
+                        </a>
                     </td>
-                    <td th:text="${cred.url}"></td>
-                    <td th:text="${cred.userName}"></td>
-                    <td th:text="${cred.password}"></td>
                 </tr>
                 </tbody>
             </table>
-
         </div>
+
 
     </div>
 </div>
@@ -188,26 +182,38 @@
 </div>
 
 <!-- ================= CREDENTIAL MODAL ================= -->
-<div class="modal fade" id="credentialModal">
-    <div class="modal-dialog">
+<div class="modal fade" id="credentialModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form th:action="@{/credentials}" th:object="${credentialForm}" method="post">
-                <div class="modal-body">
+            <div class="modal-header">
+                <h5 class="modal-title">Credential</h5>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/credential}" th:object="${credentialForm}" method="post">
+                    <input type="hidden" th:field="*{credentialId}" id="credential-id">
 
-                    <input type="hidden" th:field="*{credentialId}" id="cred-id">
+                    <div class="form-group">
+                        <label for="credential-url">URL</label>
+                        <input type="text" class="form-control" th:field="*{url}" id="credential-url">
+                    </div>
 
-                    <input class="form-control mb-2" th:field="*{url}" id="cred-url" placeholder="URL">
-                    <input class="form-control mb-2" th:field="*{userName}" id="cred-userName" placeholder="User Name">
-                    <input class="form-control" th:field="*{password}" id="cred-password" placeholder="Password">
+                    <div class="form-group">
+                        <label for="credential-username">Username</label>
+                        <input type="text" class="form-control" th:field="*{username}" id="credential-username">
+                    </div>
 
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary">Save</button>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label for="credential-password">Password</label>
+                        <input type="text" class="form-control" th:field="*{password}" id="credential-password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
 
 <!-- ================= JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -225,19 +231,22 @@
         document.getElementById('note-description').value = btn.getAttribute('data-description');
     }
 
-    function openNewCredentialModal() {
-        document.getElementById('cred-id').value = '';
-        document.getElementById('cred-url').value = '';
-        document.getElementById('cred-userName').value = '';
-        document.getElementById('cred-password').value = '';
-    }
+<script>
+function showCredentialModal() {
+    document.getElementById("credential-id").value = "";
+    document.getElementById("credential-url").value = "";
+    document.getElementById("credential-username").value = "";
+    document.getElementById("credential-password").value = "";
+    $('#credentialModal').modal('show');
+}
 
-    function openEditCredentialModal(btn) {
-        document.getElementById('cred-id').value = btn.getAttribute('data-id');
-        document.getElementById('cred-url').value = btn.getAttribute('data-url');
-        document.getElementById('cred-userName').value = btn.getAttribute('data-userName');
-        document.getElementById('cred-password').value = btn.getAttribute('data-password');
-    }
+function editCredential(button) {
+    document.getElementById("credential-id").value = button.getAttribute("data-id");
+    document.getElementById("credential-url").value = button.getAttribute("data-url");
+    document.getElementById("credential-username").value = button.getAttribute("data-username");
+    document.getElementById("credential-password").value = button.getAttribute("data-password");
+    $('#credentialModal').modal('show');
+}
 </script>
 
 </body>
