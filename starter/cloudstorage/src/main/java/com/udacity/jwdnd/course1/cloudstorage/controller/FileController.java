@@ -56,10 +56,10 @@ public class FileController {
         return "result";
     }
 
-    @GetMapping("/download/{fileid}")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable Integer fileid, Authentication authentication) {
+    @GetMapping("/download/{fileId}")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable Integer fileId, Authentication authentication) {
         User user = userService.getUser(authentication.getName());
-        FileRecord fileRecord = fileService.getFileById(fileid);
+        FileRecord fileRecord = fileService.getFileById(fileId);
 
         if (fileRecord == null || !fileRecord.getUserId().equals(user.getUserId())) {
             return ResponseEntity.notFound().build();
@@ -71,13 +71,13 @@ public class FileController {
                 .body(fileRecord.getFileData());
     }
 
-    @GetMapping("/delete/{fileid}")
-    public String deleteFile(@PathVariable Integer fileid,
+    @GetMapping("/delete/{fileId}")
+    public String deleteFile(@PathVariable Integer fileId,
                              Authentication authentication,
                              Model model) {
         User user = userService.getUser(authentication.getName());
 
-        int result = fileService.deleteFile(fileid, user.getUserId());
+        int result = fileService.deleteFile(fileId, user.getUserId());
 
         if (result > 0) {
             model.addAttribute("successMessage", "File deleted successfully");

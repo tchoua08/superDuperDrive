@@ -117,15 +117,18 @@
 
         <!-- ================= CREDENTIALS ================= -->
         <div class="tab-pane fade" id="credentials" role="tabpanel">
-            <button type="button" class="btn btn-primary" onclick="showCredentialModal()">
-                Add a New Credential
+            <button class="btn btn-info mb-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#credentialModal"
+                    onclick="showCredentialModal()">
+                +  Add a New Credential
             </button>
 
             <table class="table">
                 <thead>
                 <tr>
                     <th>URL</th>
-                    <th>Username</th>
+                    <th>UserName</th>
                     <th>Password</th>
                     <th>Actions</th>
                 </tr>
@@ -133,15 +136,15 @@
                 <tbody>
                 <tr th:each="credential : ${credentials}">
                     <td th:text="${credential.url}"></td>
-                    <td th:text="${credential.username}"></td>
+                    <td th:text="${credential.userName}"></td>
                     <td th:text="${credential.password}"></td>
                     <td>
-                        <button type="button"
-                                class="btn btn-success btn-sm"
+                        <button class="btn btn-success btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#credentialModal"
                                 th:attr="data-id=${credential.credentialId},
-                                     data-url=${credential.url},
-                                     data-username=${credential.username},
-                                     data-password=${credential.decryptedPassword}"
+                                         data-url=${credential.url},
+                                         data-username=${credential.userName}"
                                 onclick="editCredential(this)">
                             Edit
                         </button>
@@ -199,12 +202,12 @@
 
                     <div class="form-group">
                         <label for="credential-username">Username</label>
-                        <input type="text" class="form-control" th:field="*{username}" id="credential-username">
+                        <input type="text" class="form-control" th:field="*{userName}" id="credential-username">
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="credential-password-group">
                         <label for="credential-password">Password</label>
-                        <input type="text" class="form-control" th:field="*{password}" id="credential-password">
+                        <input type="password" class="form-control" th:field="*{password}" id="credential-password">
                     </div>
 
                     <button type="submit" class="btn btn-primary">Save changes</button>
@@ -231,22 +234,21 @@
         document.getElementById('note-description').value = btn.getAttribute('data-description');
     }
 
-<script>
-function showCredentialModal() {
-    document.getElementById("credential-id").value = "";
-    document.getElementById("credential-url").value = "";
-    document.getElementById("credential-username").value = "";
-    document.getElementById("credential-password").value = "";
-    $('#credentialModal').modal('show');
-}
+    function showCredentialModal() {
+        document.getElementById("credential-id").value = "";
+        document.getElementById("credential-url").value = "";
+        document.getElementById("credential-username").value = "";
+        document.getElementById("credential-password").value = "";
+       document.getElementById("credential-password-group").style.display = "block";
+    }
 
-function editCredential(button) {
-    document.getElementById("credential-id").value = button.getAttribute("data-id");
-    document.getElementById("credential-url").value = button.getAttribute("data-url");
-    document.getElementById("credential-username").value = button.getAttribute("data-username");
-    document.getElementById("credential-password").value = button.getAttribute("data-password");
-    $('#credentialModal').modal('show');
-}
+    function editCredential(button) {
+        document.getElementById("credential-id").value = button.getAttribute("data-id");
+        document.getElementById("credential-url").value = button.getAttribute("data-url");
+        document.getElementById("credential-username").value = button.getAttribute("data-username");
+        document.getElementById("credential-password").value = "";
+        document.getElementById("credential-password-group").style.display = "none";
+    }
 </script>
 
 </body>

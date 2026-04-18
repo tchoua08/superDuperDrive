@@ -37,7 +37,7 @@ public class NoteController {
         return "result";
     }
 
-    @GetMapping("/delete/{noteid}")
+    @GetMapping("/delete/{noteId}")
     public String deleteNote(@PathVariable Integer noteId,
                              Authentication authentication,
                              Model model) {

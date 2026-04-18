@@ -1,9 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.service;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
-import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,19 +19,26 @@ public class CredentialService {
     }
 
     public void addCredential(Credential credential, Integer userId) {
-        String key = UUID.randomUUID().toString();
-        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), key);
+
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
         credential.setUserId(userId);
-        credential.setKey(key);
+        credential.setKey(encodedKey);
         credential.setPassword(encryptedPassword);
         credentialMapper.insert(credential);
     }
 
     public void updateCredential(Credential credential, Integer userId) {
-        String key = UUID.randomUUID().toString();
-        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), key);
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
         credential.setUserId(userId);
-        credential.setKey(key);
+        credential.setKey(encodedKey);
         credential.setPassword(encryptedPassword);
         credentialMapper.update(credential);
     }

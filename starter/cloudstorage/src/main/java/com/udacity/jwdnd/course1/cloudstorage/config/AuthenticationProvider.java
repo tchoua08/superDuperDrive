@@ -1,8 +1,7 @@
-package com.udacity.jwdnd.course1.cloudstorage.security;
+package com.udacity.jwdnd.course1.cloudstorage.config;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.service.HashService;
 import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,12 +11,12 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 
 @Component
-public class CustomAuthenticationProvider implements AuthenticationProvider {
+public class AuthenticationProvider implements org.springframework.security.authentication.AuthenticationProvider {
 
     private final UserService userService;
     private final HashService hashService;
 
-    public CustomAuthenticationProvider(UserService userService, HashService hashService) {
+    public AuthenticationProvider(UserService userService, HashService hashService) {
         this.userService = userService;
         this.hashService = hashService;
     }
