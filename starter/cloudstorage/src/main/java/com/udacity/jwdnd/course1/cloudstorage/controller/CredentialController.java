@@ -28,14 +28,25 @@ public class CredentialController {
         User user = userService.getUser(username);
 
         try {
+            int result;
             if (credential.getCredentialId() == null) {
-                credentialService.addCredential(credential, user.getUserId());
+                result = credentialService.addCredential(credential, user.getUserId());
+                if (result > 0) {
+                    redirectAttributes.addFlashAttribute("successMessage", "Credential created successfully.");
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Unable to create credential.");
+                }
             } else {
                 credentialService.updateCredential(credential, user.getUserId());
+                result = credentialService.updateCredential(credential, user.getUserId());
+                if (result > 0) {
+                    redirectAttributes.addFlashAttribute("successMessage", "Credential updated successfully.");
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Unable to update credential.");
+                }
             }
-            redirectAttributes.addFlashAttribute("success", true);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", true);
+            redirectAttributes.addFlashAttribute("errorMessage", "Unexpected error while saving credential.");
         }
 
         return "redirect:/result";
@@ -43,12 +54,19 @@ public class CredentialController {
 
     @GetMapping("/credential/delete/{credentialId}")
     public String deleteCredential(@PathVariable Integer credentialId,
+                                   Authentication authentication,
                                    RedirectAttributes redirectAttributes) {
+        User user = userService.getUser(authentication.getName());
         try {
-            credentialService.deleteCredential(credentialId);
-            redirectAttributes.addFlashAttribute("success", true);
+            int result = credentialService.deleteCredential(credentialId, user.getUserId());
+            if (result > 0) {
+                redirectAttributes.addFlashAttribute("successMessage", "Credential deleted successfully.");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Unable to delete credential.");
+            }
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", true);
+            redirectAttributes.addFlashAttribute("errorMessage", "Unexpected error while deleting credential.");
         }
 
         return "redirect:/result";

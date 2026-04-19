@@ -20,16 +20,21 @@ class CloudStorageApplicationTests {
 	@LocalServerPort
 	private int port;
 
-	private WebDriver driver;
+    private WebDriver driver;
 
-	@BeforeAll
+
+    private WebDriverWait webDriverWait;
+
+    @BeforeAll
 	static void beforeAll() {
 		WebDriverManager.chromedriver().setup();
 	}
 
 	@BeforeEach
 	public void beforeEach() {
-		this.driver = new ChromeDriver();
+
+        this.driver = new ChromeDriver();
+        this.webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 	}
 
 	@AfterEach
@@ -183,15 +188,12 @@ class CloudStorageApplicationTests {
 		doLogIn("LFT", "123");
 
 		// Try to upload an arbitrary large file
-		WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(2));
-		String fileName = "upload5m.zip";
+        String fileName = "upload5m.zip";
+        WebElement fileSelectButton = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("input[type='file'][name='fileUpload']")));
+        fileSelectButton.sendKeys(new File(fileName).getAbsolutePath());
 
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fileUpload")));
-		WebElement fileSelectButton = driver.findElement(By.id("fileUpload"));
-		fileSelectButton.sendKeys(new File(fileName).getAbsolutePath());
-
-		WebElement uploadButton = driver.findElement(By.id("uploadButton"));
-		uploadButton.click();
+        driver.findElement(By.xpath("//button[normalize-space()='Upload']")).click();
 		try {
 			webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.id("success")));
 		} catch (org.openqa.selenium.TimeoutException e) {

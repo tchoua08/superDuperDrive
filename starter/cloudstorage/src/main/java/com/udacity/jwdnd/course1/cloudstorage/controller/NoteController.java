@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/notes")
@@ -23,34 +24,33 @@ public class NoteController {
     @PostMapping
     public String saveNote(@ModelAttribute NoteForm noteForm,
                            Authentication authentication,
-                           Model model) {
+                           RedirectAttributes redirectAttributes) {
         User user = userService.getUser(authentication.getName());
 
         int result = noteService.saveNote(noteForm, user.getUserId());
 
         if (result > 0) {
-            model.addAttribute("successMessage", "Note Successfully save");
+            redirectAttributes.addFlashAttribute("successMessage", "Note saved successfully.");
         } else {
-            model.addAttribute("errorMessage", "Registration error");
+            redirectAttributes.addFlashAttribute("errorMessage", "Unable to save note.");
         }
-
-        return "result";
+        return "redirect:/result";
     }
 
     @GetMapping("/delete/{noteId}")
     public String deleteNote(@PathVariable Integer noteId,
                              Authentication authentication,
-                             Model model) {
+                             RedirectAttributes redirectAttributes) {
         User user = userService.getUser(authentication.getName());
 
         int result = noteService.deleteNote(noteId, user.getUserId());
 
         if (result > 0) {
-            model.addAttribute("successMessage", "Delete note Success");
+            redirectAttributes.addFlashAttribute("successMessage", "Note deleted successfully.");
         } else {
-            model.addAttribute("errorMessage", "Error deleted note");
+            redirectAttributes.addFlashAttribute("errorMessage", "Unable to delete note.");
         }
 
-        return "result";
+        return "redirect:/result";
     }
 }

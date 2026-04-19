@@ -18,39 +18,48 @@ public class CredentialService {
         this.encryptionService = encryptionService;
     }
 
-    public void addCredential(Credential credential, Integer userId) {
+    public int addCredential(Credential credential, Integer userId) {
 
-        SecureRandom random = new SecureRandom();
-        byte[] key = new byte[16];
-        random.nextBytes(key);
-        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encodedKey = generateEncodedKey();
         String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
         credential.setUserId(userId);
         credential.setKey(encodedKey);
         credential.setPassword(encryptedPassword);
-        credentialMapper.insert(credential);
+       return credentialMapper.insert(credential);
     }
 
-    public void updateCredential(Credential credential, Integer userId) {
-        SecureRandom random = new SecureRandom();
-        byte[] key = new byte[16];
-        random.nextBytes(key);
-        String encodedKey = Base64.getEncoder().encodeToString(key);
+    public int updateCredential(Credential credential, Integer userId) {
+
+        Credential existingCredential = credentialMapper.getCredentialByIdAndUserId(credential.getCredentialId(), userId);
+        if (existingCredential == null) {
+            return 0;
+        }
+        String encodedKey = generateEncodedKey();
         String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
         credential.setUserId(userId);
         credential.setKey(encodedKey);
         credential.setPassword(encryptedPassword);
-        credentialMapper.update(credential);
+       return credentialMapper.update(credential);
     }
 
     public String getDecryptedPassword(Credential credential) {
         return encryptionService.decryptValue(credential.getPassword(), credential.getKey());
     }
-    public void deleteCredential(Integer credentialId){
-        credentialMapper.delete(credentialId);
+    public int deleteCredential(Integer credentialId, Integer userId){
+        return credentialMapper.delete(credentialId, userId);
     }
 
     public List<Credential> getCredentialsByUserId(Integer userId) {
-        return credentialMapper.getCredentialsByUserId(userId);
+        List<Credential> credentials = credentialMapper.getCredentialsByUserId(userId);
+        credentials.forEach(credential ->
+                credential.setDecryptedPassword(encryptionService.decryptValue(credential.getPassword(), credential.getKey())));
+        return credentials;
+    }
+
+    private String generateEncodedKey() {
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        return Base64.getEncoder().encodeToString(key);
     }
 }

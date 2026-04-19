@@ -39,10 +39,10 @@ public class SignupController {
 
         if (rowsInserted < 1) {
             model.addAttribute("signupError", "Account registration error");
-            return "signup";
+            return "redirect:/login";
         }
 
-        model.addAttribute("signupSuccess", "Registration Success , please login");
-        return "login";
+        model.addAttribute("successMessage", "You successfully signed up!");
+        return "redirect:/login";
     }
 }

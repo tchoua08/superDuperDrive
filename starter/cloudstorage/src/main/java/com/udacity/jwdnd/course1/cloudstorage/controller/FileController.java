@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/files")
@@ -27,33 +28,33 @@ public class FileController {
     @PostMapping
     public String uploadFile(@RequestParam("fileUpload") MultipartFile multipartFile,
                              Authentication authentication,
-                             Model model) {
+                             RedirectAttributes redirectAttributes) {
         try {
             User user = userService.getUser(authentication.getName());
 
             if (multipartFile.isEmpty()) {
-                model.addAttribute("errorMessage", "Please add a file");
-                return "result";
+                redirectAttributes.addFlashAttribute("errorMessage", "Please select a file to upload.");
+                return "redirect:/result";
             }
 
             if (!fileService.isFilenameAvailable(multipartFile.getOriginalFilename(), user.getUserId())) {
-                model.addAttribute("errorMessage", "Error a file with the same name already exist");
-                return "result";
+                redirectAttributes.addFlashAttribute("errorMessage", "A file with the same name already exists.");
+                return "redirect:/result";
             }
 
             int result = fileService.uploadFile(multipartFile, user.getUserId());
 
             if (result > 0) {
-                model.addAttribute("successMessage", "File upload success");
+                redirectAttributes.addFlashAttribute("successMessage", "File uploaded successfully.");
             } else {
-                model.addAttribute("errorMessage", "upload file error");
+                redirectAttributes.addFlashAttribute("errorMessage", "Unable to upload file.");
             }
 
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Technical error uploading file");
+            redirectAttributes.addFlashAttribute("errorMessage", "Unexpected error while uploading file.");
         }
 
-        return "result";
+        return "redirect:/result";
     }
 
     @GetMapping("/download/{fileId}")
@@ -74,17 +75,17 @@ public class FileController {
     @GetMapping("/delete/{fileId}")
     public String deleteFile(@PathVariable Integer fileId,
                              Authentication authentication,
-                             Model model) {
+                             RedirectAttributes redirectAttributes) {
         User user = userService.getUser(authentication.getName());
 
         int result = fileService.deleteFile(fileId, user.getUserId());
 
         if (result > 0) {
-            model.addAttribute("successMessage", "File deleted successfully");
+            redirectAttributes.addFlashAttribute("successMessage", "File deleted successfully.");
         } else {
-            model.addAttribute("errorMessage", "Error Deleted file");
+            redirectAttributes.addFlashAttribute("errorMessage", "Unable to delete file.");
         }
 
-        return "result";
+        return "redirect:/result";
     }
 }
